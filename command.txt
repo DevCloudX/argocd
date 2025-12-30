@@ -5,3 +5,9 @@
 
 	cd argocd
 	helm dependency build
+
+----------------
+
+Install Argo CD into observability namespace
+	helm install argocd ./ \
+	  -n 
