@@ -1,0 +1,11 @@
+apiVersion: v2
+name: observability
+description: Argo CD GitOps Controller
+type: application
+version: 0.1.0
+appVersion: "2.9.3"
+
+dependencies:
+  - name: argo-cd
+    version: 6.7.3
+    repository: https://argoproj.github.io/argo-helm
