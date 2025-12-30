@@ -8,6 +8,4 @@
 
 ----------------
 
-Install Argo CD into observability namespace
-	helm install argocd ./ \
-	  -n 
+helm install argocd ./ -n sen-dev-dev-azr-k8s-sen-w2-001
