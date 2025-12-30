@@ -1,64 +1,6 @@
-Directory structure (expected)
-	argocd/
-	├── Chart.yaml
-	├── values.yaml
+  # 🔴 BASE64 encode your real certificate
+  # echo -n tls.crt | base64 -w 0
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURhekNDQWxPZ0F3SUJBZ0lVTlRSNUFNNHBIRVFUbkl2RDJuS2JKZnhpMUpZd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNWVk14RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWVGdzB5TlRFeU16QXhOalV3TWpaYUZ3MHlOakV5Ck16QXhOalV3TWpaYU1FVXhDekFKQmdOVkJBWVRBbFZUTVJNd0VRWURWUVFJREFwVGIyMWxMVk4wWVhSbE1TRXcKSHdZRFZRUUtEQmhKYm5SbGNtNWxkQ0JYYVdSbmFYUnpJRkIwZVNCTWRHUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQgpBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ1N5R1RnYmRST0twcXlIT00zdmhFWE9nRk1zTGpYSkdTTkowSjltT0xvCktBTjhiVlZueHRUejB2WmhXSVcvbnpHN0xveTdFRzZBSFhQTkxzN1pucTQ3WXBKWUp1N2w3dDNTUmdvOWhQRXAKUjBrSUY0YWIyOFpnSnNQWFQ1QisrQm1YdFd1amtITkdlZWREN2NsZXlwTHFoSS95bmhjQVlobVdzbVNObEVZdAo2cGtZRTJOSjNCUTZ6eFE0YUI2WVppNjRuWkh0UXdoS2RDTFFpTS9Mb1BvYlRiVnJUN01HZmNMN3VZMEh1MElUClRqZG5BT0pGMFZmOWNlNkZoVC9DMUI1Y29pS2QzSE9SanNwWWZNcU03M2JxVEtXWEo5RUIvREhzS2E3c3owclAKVVVpRXhvdFpkL0pwWkNDcGk1bmFYQzNibjkxOEc1bzRBUFQ0L0FocTJRSi9BZ01CQUFHalV6QlJNQjBHQTFVZApEZ1FXQkJSWHYxeWcrTFdkd2R5QlhkVGNBVkN0QWdyZUlUQWZCZ05WSFNNRUdEQVdnQlJYdjF5ZytMV2R3ZHlCClhkVGNBVkN0QWdyZUlUQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQkEKSEgzVk5XQk9jOGE0WW1mT0FaejBkejVRakpVcFpmSGd0akpHZHAvL0dzS25IWCtWU3ViMlY4ajhmRlV1ZUJweApaMXBJaTh6dkU0TzhJL0xGTjVDRjVnQWlSRFcyck9lQ2pjVjdDWlk0ZHpzejFaL2hVSGVSSlFsUnZBSWNjTFFJCkdsMFhlMk1HcW81Vm5uVTJ0TVVsM3U5WkJsK09nZncwYXc1cFpnT2JxUmdlRnBZODRkYnI3Z2NmVFQwNEpEM0EKR1gwU3NKV3cwSmZGbkxNQkZCUFQrRmFFeUR2K3JhTkhnZzgwUndBNHN1c29KUGc5V21kMTc5REl0MXhvdVBkcQptYWJ3ZXVOUVAxWVFhcUdIdmRNRllGcWdJVFNyMjNwVHhuZXB4QXVTZVZGd0dhUVJ5R3VDdTdpbllxRC9KZEpxClE2SGpIS0h4S0F0amJZSUhiQklYCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
 
-Add Argo Helm repo (once)
-	helm repo add argo https://argoproj.github.io/argo-helm
-	helm repo update
-
-Create the namespace (if not exists)
-	kubectl create namespace observability || true
-
-Build Helm dependencies
-	cd argocd
-	helm dependency build
-	
-Install Argo CD into observability namespace
-	helm install argocd ./ \
-	  -n observability
-
-Verify deployment
-	
-	kubectl get pods -n observability
-	
-	
-Confirm service namespace
-			
-
-	kubectl get svc -n observability | grep argocd	
-	
-Access Argo CD UI (port-forward)
-
-	kubectl port-forward svc/argocd-server \
-	  -n observability 8080:80
-	  
-	  OR
-	  
-	nohup kubectl port-forward svc/argocd-server \
-	  -n observability 8080:80 \
-	  > argocd-port-forward.log 2>&1 &
-		  
-	
-Get admin password
-
-	kubectl get secret argocd-initial-admin-secret \
-	  -n observability \
-	  -o jsonpath="{.data.password}" | base64 -d
-
-
-
--------------------
-
-kubectl create secret tls nginx-tls \
-  --cert=tls.crt \
-  --key=tls.key \
-  -n observability
-
-==========
-kubectl describe secret nginx-tls -n observability
-==================
-
-
-base64 -w 0 tls.crt
-base64 -w 0 tls.key
+  # 🔴 BASE64 encode your private key
+  tls.key: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURhekNDQWxPZ0F3SUJBZ0lVTlRSNUFNNHBIRVFUbkl2RDJuS2JKZnhpMUpZd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNWVk14RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWVGdzB5TlRFeU16QXhOalV3TWpaYUZ3MHlOakV5Ck16QXhOalV3TWpaYU1FVXhDekFKQmdOVkJBWVRBbFZUTVJNd0VRWURWUVFJREFwVGIyMWxMVk4wWVhSbE1TRXcKSHdZRFZRUUtEQmhKYm5SbGNtNWxkQ0JYYVdSbmFYUnpJRkIwZVNCTWRHUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQgpBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ1N5R1RnYmRST0twcXlIT00zdmhFWE9nRk1zTGpYSkdTTkowSjltT0xvCktBTjhiVlZueHRUejB2WmhXSVcvbnpHN0xveTdFRzZBSFhQTkxzN1pucTQ3WXBKWUp1N2w3dDNTUmdvOWhQRXAKUjBrSUY0YWIyOFpnSnNQWFQ1QisrQm1YdFd1amtITkdlZWREN2NsZXlwTHFoSS95bmhjQVlobVdzbVNObEVZdAo2cGtZRTJOSjNCUTZ6eFE0YUI2WVppNjRuWkh0UXdoS2RDTFFpTS9Mb1BvYlRiVnJUN01HZmNMN3VZMEh1MElUClRqZG5BT0pGMFZmOWNlNkZoVC9DMUI1Y29pS2QzSE9SanNwWWZNcU03M2JxVEtXWEo5RUIvREhzS2E3c3owclAKVVVpRXhvdFpkL0pwWkNDcGk1bmFYQzNibjkxOEc1bzRBUFQ0L0FocTJRSi9BZ01CQUFHalV6QlJNQjBHQTFVZApEZ1FXQkJSWHYxeWcrTFdkd2R5QlhkVGNBVkN0QWdyZUlUQWZCZ05WSFNNRUdEQVdnQlJYdjF5ZytMV2R3ZHlCClhkVGNBVkN0QWdyZUlUQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQkEKSEgzVk5XQk9jOGE0WW1mT0FaejBkejVRakpVcFpmSGd0akpHZHAvL0dzS25IWCtWU3ViMlY4ajhmRlV1ZUJweApaMXBJaTh6dkU0TzhJL0xGTjVDRjVnQWlSRFcyck9lQ2pjVjdDWlk0ZHpzejFaL2hVSGVSSlFsUnZBSWNjTFFJCkdsMFhlMk1HcW81Vm5uVTJ0TVVsM3U5WkJsK09nZncwYXc1cFpnT2JxUmdlRnBZODRkYnI3Z2NmVFQwNEpEM0EKR1gwU3NKV3cwSmZGbkxNQkZCUFQrRmFFeUR2K3JhTkhnZzgwUndBNHN1c29KUGc5V21kMTc5REl0MXhvdVBkcQptYWJ3ZXVOUVAxWVFhcUdIdmRNRllGcWdJVFNyMjNwVHhuZXB4QXVTZVZGd0dhUVJ5R3VDdTdpbllxRC9KZEpxClE2SGpIS0h4S0F0amJZSUhiQklYCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
