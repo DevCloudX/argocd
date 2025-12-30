@@ -1,2 +1,7 @@
 	helm repo add argo https://argoproj.github.io/argo-helm
 	helm repo update
+
+--------------------
+
+	cd argocd
+	helm dependency build
