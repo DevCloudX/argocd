@@ -1,0 +1,73 @@
+argo-cd:
+  global:
+    image:
+      tag: v2.9.3
+
+  configs:
+    params:
+      server.insecure: true
+
+  server:
+    replicas: 1 #set replicas to 2 for high availability
+
+
+    service:
+      type: ClusterIP
+      servicePortHttp: 80
+      servicePortHttps: 443
+
+    ingress:
+      enabled: false
+
+    # ingress:
+    #   enabled: true
+    #   ingressClassName: nginx
+    #   hosts:
+    #     - argocd.example.com
+    #   paths:
+    #     - /
+    #   pathType: Prefix
+    #   tls:
+    #     - secretName: argocd-tls
+    #       hosts:
+    #         - argocd.example.com
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  # controller:
+  #   replicas: 1
+  #   resources:
+  #     requests:
+  #       cpu: 200m
+  #       memory: 512Mi
+
+  # repoServer:
+  #   replicas: 2
+  #   resources:
+  #     requests:
+  #       cpu: 100m
+  #       memory: 256Mi
+
+  # applicationSet:
+  #   enabled: true
+
+  # redis:
+  #   enabled: true
+
+  controller:
+    replicas: 1
+
+  repoServer:
+    replicas: 1
+
+  applicationSet:
+    enabled: true
+
+  redis:
+    enabled: true
