@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-log-ingestion
+  namespace: default
+spec:
+  replicas: 3        #Increase for higher throughput / HA
+  selector:
+    matchLabels:
+      app: nginx-log-ingestion
+  template:
+    metadata:
+      labels:
+        app: nginx-log-ingestion
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine   # Stable + lightweight
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - containerPort: 443       # NGINX listens on 443
+
+        # ----------------------------
+        # RESOURCE MANAGEMENT
+        # ----------------------------
+        resources:
+          requests:
+            cpu: "500m"            #Tune for your load
+            memory: "512Mi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
+
+        # ----------------------------
+        # CONFIG & TLS MOUNTS
+        # ----------------------------
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+
+        - name: nginx-tls
+          mountPath: /etc/nginx/tls
+          readOnly: true
+
+        # ----------------------------
+        # HEALTH CHECKS
+        # Required for Azure LB
+        # ----------------------------
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+
+      - name: nginx-tls
+        secret:
+          secretName: nginx-tls
