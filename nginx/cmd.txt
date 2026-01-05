@@ -1,0 +1,2 @@
+kubectl apply -f deployment.yaml -n sen-dev-dev-azr-k8s-sen-w2-001
+kubectl rollout restart deployment nginx-log-ingestion -n sen-dev-dev-azr-k8s-sen-w2-001
