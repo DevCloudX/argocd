@@ -1,2 +1,9 @@
 kubectl apply -f deployment.yaml -n sen-dev-dev-azr-k8s-sen-w2-001
 kubectl rollout restart deployment nginx-log-ingestion -n sen-dev-dev-azr-k8s-sen-w2-001
+
+--------------
+kubectl run net-test \
+  -n sen-dev-dev-azr-k8s-sen-w2-001 \
+  --image=busybox \
+  --restart=Never \
+  --command -- sleep 3600
