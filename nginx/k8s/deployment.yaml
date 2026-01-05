@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-log-ingestion
-  namespace: default
+  namespace: sen-dev-dev-azr-k8s-sen-w2-001
 spec:
-  replicas: 3        #Increase for higher throughput / HA
+  replicas: 1
   selector:
     matchLabels:
       app: nginx-log-ingestion
@@ -15,29 +15,39 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.25-alpine   # Stable + lightweight
+        image: nginx:1.25-alpine
         imagePullPolicy: IfNotPresent
 
+        # ----------------------------
+        # IMPORTANT: Override command
+        # ----------------------------
+        command: ["nginx"]
+        args:
+          - "-c"
+          - "/etc/nginx/custom-nginx.conf"
+          - "-g"
+          - "daemon off;"
+
         ports:
-        - containerPort: 443       # NGINX listens on 443
+        - containerPort: 443
 
         # ----------------------------
-        # RESOURCE MANAGEMENT
+        # RESOURCE LIMITS (DEV SAFE)
         # ----------------------------
         resources:
           requests:
-            cpu: "500m"            #Tune for your load
-            memory: "512Mi"
+            cpu: "100m"
+            memory: "256Mi"
           limits:
-            cpu: "2"
-            memory: "2Gi"
+            cpu: "500m"
+            memory: "512Mi"
 
         # ----------------------------
         # CONFIG & TLS MOUNTS
         # ----------------------------
         volumeMounts:
         - name: nginx-config
-          mountPath: /etc/nginx/nginx.conf
+          mountPath: /etc/nginx/custom-nginx.conf
           subPath: nginx.conf
 
         - name: nginx-tls
@@ -45,15 +55,14 @@ spec:
           readOnly: true
 
         # ----------------------------
-        # HEALTH CHECKS
-        # Required for Azure LB
+        # HEALTH CHECKS (AKS)
         # ----------------------------
         livenessProbe:
           httpGet:
             path: /health
             port: 443
             scheme: HTTPS
-          initialDelaySeconds: 10
+          initialDelaySeconds: 15
           periodSeconds: 10
 
         readinessProbe:
@@ -61,9 +70,12 @@ spec:
             path: /health
             port: 443
             scheme: HTTPS
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
 
+      # ----------------------------
+      # VOLUMES
+      # ----------------------------
       volumes:
       - name: nginx-config
         configMap:
