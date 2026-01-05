@@ -1,7 +1,8 @@
 apiVersion: v2
 name: observability
-description: Argo CD GitOps Controller
+description: Argo CD GitOps Controller (Namespace Scoped for sen-dev-dev-azr-k8s-sen-w2-001)
 type: application
+
 version: 0.1.0
 appVersion: "2.9.3"
 
