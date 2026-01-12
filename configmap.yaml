@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: sen-dev-dev-azr-k8s-sen-w2-001
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    worker_rlimit_nofile 200000;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections 10000;
+        multi_accept on;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format main
+          '$remote_addr [$time_local] "$request" '
+          '$status $body_bytes_sent '
+          'ns=$http_x_k8s_namespace '
+          'pod=$http_x_k8s_pod '
+          'app=$http_x_app_name '
+          'rt=$request_time '
+          'uct=$upstream_connect_time '
+          'urt=$upstream_response_time';
+
+        access_log /var/log/nginx/access.log main;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+
+        keepalive_timeout 65;
+        keepalive_requests 10000;
+
+        client_max_body_size 100m;
+        client_body_buffer_size 1m;
+
+        proxy_buffering off;
+        server_tokens off;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache shared:SSL:50m;
+        ssl_session_timeout 1d;
+
+        limit_req_zone $binary_remote_addr zone=loglimit:20m rate=300r/s;
+
+        # -----------------------------
+        # UPSTREAMS (ONLY TWO)
+        # -----------------------------
+        upstream vector_gateway {
+            least_conn;
+            server vector-gateway.sen-dev-dev-azr-k8s-sen-w2-001.svc.cluster.local:8080;
+            keepalive 128;
+        }
+
+        upstream vector_sandbox {
+            least_conn;
+            server vector-sandbox.sen-dev-dev-azr-k8s-sen-w2-001.svc.cluster.local:8080;
+            keepalive 64;
+        }
+
+        server {
+            listen 443 ssl http2;
+            server_name _;
+
+            ssl_certificate     /etc/nginx/tls/tls.crt;
+            ssl_certificate_key /etc/nginx/tls/tls.key;
+
+            location /health {
+                access_log off;
+                return 200 "OK\n";
+            }
+
+            # -----------------------------
+            # MAIN INGESTION → GATEWAY
+            # -----------------------------
+            location /logs {
+                limit_req zone=loglimit burst=1000 nodelay;
+                proxy_http_version 1.1;
+
+                proxy_set_header X-K8s-Namespace $http_x_k8s_namespace;
+                proxy_set_header X-K8s-Pod       $http_x_k8s_pod;
+                proxy_set_header X-K8s-Node      $hostname;
+                proxy_set_header X-App-Name      $http_x_app_name;
+                proxy_set_header X-Real-IP       $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto https;
+
+                proxy_pass http://vector_gateway;
+            }
+
+            # -----------------------------
+            # SECURITY LOGS → GATEWAY
+            # -----------------------------
+            location /security {
+                limit_req zone=loglimit burst=500 nodelay;
+                proxy_http_version 1.1;
+
+                proxy_set_header X-K8s-Namespace $http_x_k8s_namespace;
+                proxy_set_header X-K8s-Pod       $http_x_k8s_pod;
+
+                proxy_pass http://vector_gateway;
+            }
+
+            # -----------------------------
+            # ONBOARDING / TESTING → SANDBOX
+            # -----------------------------
+            location /sandbox {
+                proxy_http_version 1.1;
+
+                proxy_set_header X-Real-IP       $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+                proxy_pass http://vector_sandbox;
+            }
+
+            location / {
+                return 404;
+            }
+        }
+    }
