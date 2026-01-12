@@ -1,2 +1,2 @@
 kubectl apply -f configmap.yaml -n sen-dev-dev-azr-k8s-sen-w2-001
-kubectl rollout restart configmap nginx-log-ingestion -n sen-dev-dev-azr-k8s-sen-w2-001
+kubectl rollout restart configmap nginx-config -n sen-dev-dev-azr-k8s-sen-w2-001
