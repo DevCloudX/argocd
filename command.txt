@@ -1,20 +1,2 @@
-	helm repo add argo https://argoproj.github.io/argo-helm
-	helm repo update
-
---------------------
-
-	cd argocd
-	helm dependency build
-
-----------------
-
-helm install argocd ./ -n sen-dev-dev-azr-k8s-sen-w2-001
-
-
------------------
-
-kubectl get pods -n sen-dev-dev-azr-k8s-sen-w2-001
-
--------------
-
-kubectl get svc -n sen-dev-dev-azr-k8s-sen-w2-001 | grep argocd	
+kubectl apply -f configmap.yaml -n sen-dev-dev-azr-k8s-sen-w2-001
+kubectl rollout restart configmap nginx-log-ingestion -n sen-dev-dev-azr-k8s-sen-w2-001
