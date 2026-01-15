@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-nginx-conf
+  namespace: {{ .Values.namespace }}
+data:
+  nginx.conf: |
+{{ include "nginx-proxy.nginxConf" . | indent 4 }}
