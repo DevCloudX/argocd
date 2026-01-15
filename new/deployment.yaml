@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nginx-proxy.fullname" . }}
+  labels:
+    app: {{ include "nginx-proxy.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "nginx-proxy.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "nginx-proxy.name" . }}
+    spec:
+      imagePullSecrets:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: tls-{{ $groupName }}
+              mountPath: {{ $group.tls.certs.mountPath }}
+              readOnly: true
+    
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: nginx-temp
+              mountPath: /tmp/nginx
+            - name: nginx-logs
+              mountPath: /var/log/nginx
+
+        - name: vector
+          image: "{{ .Values.vector.image.repository }}:{{ .Values.vector.image.tag }}"
+          imagePullPolicy: {{ .Values.vector.image.pullPolicy }}
+          args:
+            - --config
+            - /etc/vector/vector.yaml
+          volumeMounts:
+            - name: nginx-logs
+              mountPath: /var/log/nginx
+              readOnly: true
+            - name: vector-config
+              mountPath: /etc/vector
+            - name: vector-data
+              mountPath: /var/lib/vector
+
+      volumes:
+
+        - name: tls-{{ $groupName }}
+          secret:
+            secretName: {{ $group.tls.certs.secretName }}
+
+        - name: nginx-conf
+          configMap:
+            name: {{ include "nginx-proxy.configmapName" . }}
+        - name: nginx-temp
+          emptyDir: {}
+        - name: nginx-logs
+          emptyDir: {}
+
+        - name: vector-config
+          configMap:
+            name: {{ include "nginx-proxy.fullname" . }}-vector-config
+        - name: vector-data
+          emptyDir: {}
+
