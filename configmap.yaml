@@ -54,11 +54,11 @@ data:
         limit_req_zone $binary_remote_addr zone=loglimit:20m rate=300r/s;
 
         # -----------------------------
-        # UPSTREAMS (ONLY TWO)
+        # UPSTREAMS
         # -----------------------------
         upstream vector_gateway {
             least_conn;
-            server vector-gateway.sen-dev-dev-azr-k8s-sen-w2-001.svc.cluster.local:8080;
+            server vector-gateway.sen-dev-dev-azr-k8s-sen-w2-001.svc.cluster.local:8687;
             keepalive 128;
         }
 
@@ -68,6 +68,9 @@ data:
             keepalive 64;
         }
 
+        # -----------------------------
+        # HTTPS SERVER
+        # -----------------------------
         server {
             listen 443 ssl http2;
             server_name _;
